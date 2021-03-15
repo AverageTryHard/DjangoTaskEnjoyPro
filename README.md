@@ -47,7 +47,7 @@ Api functions:
 
 'rest_messaging/':
 * 'posts/' - GET. List of messages.
-* 'posts/create/' - POST, data example = {'title': 'new message'}. Create message.
+* 'posts/create' - POST, data example = {'title': 'new message'}. Create message.
 * 'posts/<int:pk>' - PUT, data example = {'description': 'some'}. Change message.
 * 'posts/<int:pk>' - DELETE. Delete message.
 * 'posts/<int:message_id>/read' - POST. Imitate message read.

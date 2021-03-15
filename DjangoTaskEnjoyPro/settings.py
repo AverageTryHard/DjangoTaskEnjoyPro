@@ -93,7 +93,7 @@ DATABASES = {
         'NAME': 'rest_messaging',
         'USER': 'postgres',
         'PASSWORD': 'pass',
-        'HOST': 'db',
+        'HOST': 'localhost',
     }
 }
 

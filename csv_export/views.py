@@ -7,10 +7,11 @@ class ModelCSVExportView(View):
     """
     Export data in csv file
     """
-    def __init__(self, serializer_class, model_class, **kwargs):
+    def __init__(self, serializer_class, model_class, sort_by='', **kwargs):
         super().__init__(**kwargs)
         self.serializer_class = serializer_class
         self.model_class = model_class
+        self.sort_by = sort_by
 
     def get_serializer(self, queryset, many=True):
         return self.serializer_class(
@@ -27,10 +28,14 @@ class ModelCSVExportView(View):
         """
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="messages.csv"'
+        if self.sort_by:
+            data = self.model_class.objects.all().order_by(self.sort_by)
+        else:
+            data = self.model_class.objects.all()
 
         serializer = self.get_serializer(
-            self.model_class.objects.all(),
-            many=True
+            data,
+            many=True,
         )
         header = self.serializer_class.Meta.fields
 

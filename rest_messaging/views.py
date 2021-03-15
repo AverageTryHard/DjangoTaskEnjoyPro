@@ -104,7 +104,7 @@ class MessageCsvExport(ModelCSVExportView):
     Export csv file with message data
     """
     def __init__(self, *args, **kwargs):
-        super().__init__(MessageSerializer, Message, **kwargs)
+        super().__init__(MessageSerializer, Message, 'created_at', **kwargs)
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)

@@ -3,7 +3,6 @@ import io
 from django.test import TestCase
 
 from rest_messaging.models import Message
-from rest_messaging.views import MessageCsvExport
 
 
 class MessageTestCase(TestCase):
