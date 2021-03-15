@@ -20,7 +20,9 @@ from backoff import on_exception, expo
 from rest_messaging.models import Message
 from rest_messaging.serializers import MessageSerializer
 from csv_export.views import ModelCSVExportView
-from .tasks import sent_message
+from DjangoTaskEnjoyPro.tasks import sent_message
+
+logger = logging.getLogger('error_logger')
 
 
 class MessageListAPIView(ListAPIView):
@@ -39,7 +41,7 @@ class MessageDetailsAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Message.objects
 
 
-def create_limit_method(details):
+def create_limit_method(details: dict):
     """
     After limit of creating messages reached write in log and raise error 429
 
@@ -51,29 +53,42 @@ def create_limit_method(details):
     """
     method_name = 'posts/create/ - create message method'
     client_ip = details['args'][0].META['REMOTE_ADDR']
-    logging.error(f'429 error in method - {method_name}, request was sent by client with ip - {client_ip}')
+    logger.error(f'ERROR: 429 error in method - {method_name}, request was sent by client with ip - {client_ip}')
     raise Throttled
 
 
 @csrf_exempt
 @api_view(('POST',))
 @renderer_classes((JSONRenderer,))
-@on_exception(expo, Ratelimited, on_backoff=create_limit_method)
-@ratelimit(key='ip', rate='1/m', method='POST', block=True)
+@on_exception(expo, Ratelimited, on_backoff=create_limit_method)  # catch limit exception
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)  # limit amount of requests
 def create_message(request):
     """
     Create new message
+
+    Args:
+        request: request
+
+    Returns:
+        Response with message data
     """
     body = json.loads(request.body)
     message = Message.objects.create(title=body['title'])
-    sent_message.delay(message.pk)  # Celery task
+    sent_message.delay(message.pk)
     return Response(model_to_dict(message), status=status.HTTP_201_CREATED)
 
 
 @csrf_exempt
-def read_message(request, message_id):
+def read_message(request, message_id: int) -> HttpResponse:
     """
     Set is_read of message True
+
+    Args:
+        request: request
+        message_id: message table id
+
+    Returns:
+        HttpResponse: response with status code
     """
     if request.method != 'POST':
         return HttpResponse(status=405)

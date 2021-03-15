@@ -1,10 +1,15 @@
+import csv
+import io
 from django.test import TestCase
 
 from rest_messaging.models import Message
-from django.test import Client
+from rest_messaging.views import MessageCsvExport
 
 
 class MessageTestCase(TestCase):
+    """
+    Test message creation
+    """
     def test_message(self):
         self.assertEquals(
             Message.objects.count(),
@@ -21,4 +26,26 @@ class MessageTestCase(TestCase):
             2
         )
 
-# TODO client methods: message_read, message_csv
+
+class MessageCSVTestCase(TestCase):
+    """
+    Test message sending
+    """
+    def test_csv_export(self):
+        response = self.client.get('/rest_messaging/posts/download')
+        self.assertEqual(response.status_code, 200)
+
+        content = response.content.decode('utf-8')
+        cvs_reader = csv.reader(io.StringIO(content))
+        body = list(cvs_reader)
+        messages = Message.objects.all()
+        headers = body.pop(0)
+        message_fields = Message._meta.fields
+        self.assertEquals(
+            messages.count(),
+            len(body)
+        )
+        self.assertEquals(
+            len(message_fields),
+            len(headers)
+        )

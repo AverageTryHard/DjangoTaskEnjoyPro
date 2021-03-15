@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,14 +75,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'DjangoTaskEnjoyPro.wsgi.application'
 
+CELERY = {
+    'CELERY_BROKER_URL': 'amqp://admin:admin@rabbitmq:5672',
+    'CELERY_IMPORTS': ('rest_messaging.tasks', ),
+    'CELERY_TASK_SERIALIZER': 'json',
+    'CELERY_RESULT_SERIALIZER': 'json',
+    'CELERY_ACCEPT_CONTENT': ['json'],
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'rest_messaging',
+        'USER': 'postgres',
+        'PASSWORD': 'pass',
+        'HOST': 'db',
     }
 }
 
@@ -123,3 +135,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'error': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'error.log',
+        }
+    },
+    'loggers': {
+        'error_logger': {
+            'handlers': ['error'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

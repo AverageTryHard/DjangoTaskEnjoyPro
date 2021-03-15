@@ -1,7 +1,6 @@
-FROM python:3
+FROM python:3.7-slim
 ENV PYTHONUNBUFFERED=1
-WORKDIR /
-COPY requirements.txt /
+WORKDIR /code
+COPY requirements.txt /code/
 RUN pip install -r requirements.txt
-
-COPY . /
+COPY . /code/

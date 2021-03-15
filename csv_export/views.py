@@ -19,6 +19,12 @@ class ModelCSVExportView(View):
         )
 
     def get(self, request, *args, **kwargs):
+        """
+        Create csv file.
+
+        Returns:
+            return response with csv file.
+        """
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="messages.csv"'
 
